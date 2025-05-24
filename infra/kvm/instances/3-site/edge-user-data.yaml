@@ -1,0 +1,22 @@
+#cloud-config
+hostname: ${hostname}
+fqdn: flexiwan.local
+timezone: UTC
+manage_etc_hosts: true
+users:
+  - name: ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: sudo
+    shell: /bin/bash
+disable_root: false
+ssh_pwauth: yes
+chpasswd:
+   expire: false
+   list: |
+      ubuntu:flexiwan
+
+write_files:
+  - content: ${token}
+    owner: root:root
+    path: '/etc/flexiwan/agent/token.txt'
+    permissions: '0644'
