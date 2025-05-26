@@ -1,0 +1,124 @@
+{
+  "name": "default.setup.fwregression",
+  "server":
+    {
+      "url": "{fleximanage}",
+      "access_key": "{access_key}"
+    },
+
+  "branches": [
+    {
+      "device": {
+          "name": "b1-edge1",
+	        "ip_wan": "101.1.1.10",
+          "ip_wan2": "102.1.1.10",
+          "ip_lan": "10.1.1.1",
+          "host":
+            {
+              "hostname": "{server_ip}",
+              "username": "ubuntu",
+              "password": "flexiwan",
+              "ssh_port": 1021,
+              "edge_ui_port":1821
+            }
+        },
+        "hosts": [
+          {
+            "hostname": "{server_ip}",
+            "username": "ubuntu",
+            "password": "flexiwan",
+            "ip_lan":   "10.1.1.10",
+            "ssh_port": 1011
+          }
+        ]
+    }
+    ,
+   {
+    "device":{
+	    "name": "b2-edge1",
+	    "ip_wan": "101.2.1.10",
+	    "ip_wan2": "102.2.1.10",
+	    "ip_lan": "10.2.1.1",
+	    "host":
+	      {
+          "hostname": "{server_ip}",
+          "username": "ubuntu",
+          "password": "flexiwan",
+          "ssh_port": 1022,
+          "edge_ui_port":1822
+	      }
+	    },
+	    "hosts": [
+	      {
+          "hostname": "{server_ip}",
+          "username": "ubuntu",
+          "password": "flexiwan",
+          "ip_lan": "10.2.1.10",
+          "ssh_port": 1012
+	      }
+	    ]
+	},
+  {
+    "device":{
+	    "name": "b3-edge1",
+	    "ip_wan": "101.3.1.10",
+	    "ip_wan2": "102.3.1.10",
+	    "ip_lan": "10.3.1.1",
+	    "host":
+	      {
+          "hostname": "{server_ip}",
+          "username": "ubuntu",
+          "password": "flexiwan",
+          "ssh_port": 1023,
+          "edge_ui_port":1823
+	      }
+	    },
+	    "hosts": [
+	      {
+          "hostname": "{server_ip}",
+          "username": "ubuntu",
+          "password": "flexiwan",
+          "ip_lan": "10.3.1.10",
+          "ssh_port": 1013
+	      }
+	    ]
+	}
+  ],
+  
+  "users": {
+    "predefined_account": {
+      "user_id": "5e4aa7f16a0001330edc0347",
+      "user_name": "flexiwantest1@gmail.com",
+      "password": "O88888888!",
+      "email_provider": "gmail",
+      "email_key": "ekjatlthbypwncrc",
+      "org_id": "5fd11a28535ec05b6a2a1630",
+      "account_name": "test-automation",
+      "org_name": "test-auto-org",
+      "device_token": "{token}",
+      "access_key": "{access_key}"
+    },
+    "account_owner": {
+      "user_name": "flexiwantest2@gmail.com",
+      "password": "some-password",
+      "changed_password": "another-pass",
+      "email_key": "xomxsweoqbpfyxam",
+      "email_provider": "gmail",
+      "account_name": "test-automation-account",
+      "first_name": "Bob",
+      "last_name": "Smith",
+      "job_title": "Automation account owner"
+    },
+    "org_mgr": {
+      "user_name": "testgrpowner@gmail.com",
+      "password": "some-password",
+      "changed_password": "another-pass",
+      "email_key": "srxeogxjbrlacpal",
+      "email_provider": "gmail",
+      "account_name": "test-automation-account",
+      "first_name": "Alice",
+      "last_name": "Jonas",
+      "job_title": "Automation group manager"
+    }
+  }
+}
