@@ -11,19 +11,21 @@
 # Initialize some pre-defined variables with their default values
 DEFAULT_PROJECT=""
 DEFAULT_ZONE="us-west1-c"
-DEFAULT_SSH_KEY_PATH="."
+DEFAULT_SSH_KEY_PATH=~
 DEFAULT_STARTUP_SCRIPT_PATH="$PWD"
 DEFAULT_STARTUP_SCRIPT_FILENAME="gcp_startup_script.sh"
 DEFAULT_MACHINE_TYPE="n2-standard-8"
+DEFAULT_STACK_ID=`tr -dc a-z0-9 </dev/urandom | head -c 8`
 echo "This script has started " 
 
 usage () {
-    echo "Usage: $0 [-p <project>] [-s <stack_id>] [-k <ssh_key_file>] [-z <zone>] [-m <machine_type>] [-h]"
+    echo "Usage: $0 [-p <project>] [-s <stack_id>] [-k <ssh_key_path>] [-z <zone>] [-m <machine_type>] [-h]"
     echo "       <project> The project name used to create the environment in GCP."
     echo "                 The project must exist before running this script."
     echo "                 If not specified, the project called $DEFAULT_PROJECT will be used."
     echo "       <stack_id> A suffix used to append in all resources created in GCP."
     echo "                 If provided, it must be an alphanumeric string."
+    echo "                 If not specified, the stack ID called $DEFAULT_STACK_ID will be used."
     echo "       <ssh_key_path> An absolute path where to create the SSH key to access to the environment in GCP."
     echo "                 If not provided, the SSH key will be created in the working directory."
     echo "                 If <stack_id> is provided, a subfolder called <stack_id> will be previously created."
@@ -54,8 +56,12 @@ do
 done
 shift $(($OPTIND - 1))
 
-if [[ "x$STACK_ID" != "x" && ! "$STACK_ID" =~ ^-[0-9a-zA-Z]+$ ]] ; then
-    echo "ERROR: <stack_id> must be an alphanumeric string"
+#Defining the stack ID whether to take the default or the specified.
+STACK_ID="${STACK_ID:=$DEFAULT_STACK_ID}"
+echo "$STACK_ID"
+
+if [[ "x$STACK_ID" != "x" && ! "$STACK_ID" =~ ^[[:alnum:]]+$ ]] ; then
+    echo "ERROR: $STACK_ID must be an alphanumeric string"
     exit 1
 fi
 
@@ -63,9 +69,9 @@ fi
 PROJECT="${PROJECT:=$DEFAULT_PROJECT}"
 SSH_KEY_PATH="${SSH_KEY_PATH:=$DEFAULT_SSH_KEY_PATH}"
 VM_PREFIX_NAME="${PROJECT}-instance-sasewan"
-VM_NAME="${VM_PREFIX_NAME}$STACK_ID"
+VM_NAME="${VM_PREFIX_NAME}-$STACK_ID"
 VM_USERNAME="ubuntu"
-ADDRESS_NAME="${VM_PREFIX_NAME}-public-ip$STACK_ID"
+ADDRESS_NAME="${VM_PREFIX_NAME}-public-ip-$STACK_ID"
 ZONE="${ZONE:=$DEFAULT_ZONE}"
 REGION="${ZONE%-*}"
 MIN_CPU_PLATFORM="Intel Cascade Lake"
@@ -78,19 +84,19 @@ DISK_SIZE="60GB"
 WAN_NETWORK="default"
 WAN_SUBNET="default"
 MGMT_NETWORK_PREFIX_NAME="internal-management"
-MGMT_NETWORK="${MGMT_NETWORK_PREFIX_NAME}$STACK_ID"
-MGMT_SUBNET="${MGMT_NETWORK_PREFIX_NAME}-subnet$STACK_ID"
+MGMT_NETWORK="${MGMT_NETWORK_PREFIX_NAME}-$STACK_ID"
+MGMT_SUBNET="${MGMT_NETWORK_PREFIX_NAME}-subnet-$STACK_ID"
 MGMT_RANGE="10.20.0.0/24"
 MGMT_NETMASK="${MGMT_RANGE##*/}"
-FW_RULE_ALLOW_INTERNAL="${MGMT_NETWORK_PREFIX_NAME}-allow-internal$STACK_ID"
-FW_RULE_ALLOW_CUSTOM="${WAN_NETWORK}-allow-custom-ports$STACK_ID"
+FW_RULE_ALLOW_INTERNAL="${MGMT_NETWORK_PREFIX_NAME}-allow-internal-$STACK_ID"
+FW_RULE_ALLOW_CUSTOM="${WAN_NETWORK}-allow-custom-ports-$STACK_ID"
 #FW_RULE_ALLOW_CUSTOM_RULE="tcp:22,tcp:1001-1002,tcp:1011-1013,tcp:1021-1023,tcp:1031,tcp:1041,tcp:1051,tcp:5901,tcp:10000-10100,tcp:18021-18023,tcp:18041,icmp"
 FW_RULE_ALLOW_CUSTOM_RULE="tcp:22,tcp:5901,tcp:10000-10100,tcp:18021-18023,tcp:18041,icmp"
 STARTUP_SCRIPT_PATH="$DEFAULT_STARTUP_SCRIPT_PATH"
 STARTUP_SCRIPT_FILENAME="$DEFAULT_STARTUP_SCRIPT_FILENAME"
 
 if [ "x$STACK_ID" != "x" ] ; then
-    SSH_KEY_PATH="${SSH_KEY_PATH}/${STACK_ID:1}"
+    SSH_KEY_PATH="${SSH_KEY_PATH}/${STACK_ID}"
 fi
 
 startup_script="$(find $STARTUP_SCRIPT_PATH -type f -name $STARTUP_SCRIPT_FILENAME)"

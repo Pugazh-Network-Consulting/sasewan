@@ -1,0 +1,32 @@
+version: 2
+ethernets:
+    eth0:
+        dhcp4: false
+        dhcp6: false
+        addresses: [ "${mgmt_ip}/${netmask}" ]
+    eth1:
+        dhcp4: false
+        dhcp6: false
+        addresses: [ "${lan_ip}/${netmask}" ]
+    eth2:
+        dhcp4: false
+        dhcp6: false
+        addresses: [ "${wan1_ip}/${netmask}"]
+        routes:
+            - to: 0.0.0.0/0
+              via: ${wan1_gateway}
+              metric: 10
+        nameservers:
+          search: [flexiwan.local]
+          addresses: [ "${nameserver}" ]
+    eth3:
+        dhcp4: false
+        dhcp6: false
+        addresses: [ "${wan2_ip}/${netmask}"]
+        routes:
+            - to: 0.0.0.0/0
+              via: ${wan2_gateway}
+              metric: 20
+        nameservers:
+          search: [flexiwan.local]
+          addresses: [ "${nameserver}" ]

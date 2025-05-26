@@ -1,0 +1,26 @@
+#cloud-config
+hostname: ${hostname}
+manage_etc_hosts: true
+users:
+  - name: ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: sudo
+    shell: /bin/bash
+disable_root: false
+ssh_pwauth: true
+chpasswd:
+   expire: False
+   list: |
+      ubuntu:flexiwan
+package_update: true
+runcmd:
+  - sudo chown ubuntu:ubuntu /etc/sysctl.conf
+  - sudo echo net.ipv6.conf.all.disable_ipv6=1 >> /etc/sysctl.conf
+  - sudo echo net.ipv6.conf.default.disable_ipv6=1 >> /etc/sysctl.conf
+  - sudo echo net.ipv4.ip_forward=1 >> /etc/sysctl.conf
+  - sudo sysctl -p
+  - touch /tmp/eth
+  - ip route show to default | grep -Eo "dev\s*[[:alnum:]]+" | sed 's/dev\s//g' > /tmp/eth
+  - iptables -t nat -A POSTROUTING -o `cat /tmp/eth` -j MASQUERADE
+  - chown ubuntu:ubuntu /etc/iptables/rules.v4
+  - iptables-save > /etc/iptables/rules.v4

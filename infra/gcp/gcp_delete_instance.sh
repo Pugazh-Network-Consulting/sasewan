@@ -6,15 +6,13 @@
 # Preconditions to run this script:
 # - glcoud tool must be installed and set up to access to GCP resources
 # - A project called $PROJECT (see below) must be created
-# - This script is run from Jenkins job "Blueprint Testing Suite GCP - Dual WAN Pipeline":
-#   https://ci.flexiwan.com/job/Blueprint%20Testing%20Suite%20GCP%20-%20Dual%20WAN%20Pipeline/ 
 #
 #   To use it outside Jenkins, perform necessary changes
 
 # Initialize some pre-defined variables with their default values
-DEFAULT_PROJECT="flexiwan-regression-tests"
+DEFAULT_PROJECT=""
 DEFAULT_ZONE="us-west1-c"
-DEFAULT_SSH_KEY_PATH="."
+DEFAULT_SSH_KEY_PATH=~
 
 function usage {
     echo "Usage: $0 [-p <project>] [-s <stack_id>] [-k <ssh_key_file>] [-z <zone>] [-h]"
@@ -37,7 +35,7 @@ do
     case "$options" in
         p) PROJECT="${OPTARG}"
            ;;
-        s) STACK_ID="-${OPTARG}"
+        s) STACK_ID="${OPTARG}"
            ;;
         k) SSH_KEY_PATH="${OPTARG}"
            ;;
@@ -49,7 +47,7 @@ do
 done
 shift $(($OPTIND - 1))
 
-if [[ "x$STACK_ID" != "x" && ! "$STACK_ID" =~ ^-[0-9a-zA-Z]+$ ]] ; then
+if [[ "x$STACK_ID" != "x" && ! "$STACK_ID" =~ ^[0-9a-zA-Z]+$ ]] ; then
     echo "ERROR: <stack_id> must be an alphanumeric string"
     exit 1
 fi
@@ -58,19 +56,19 @@ fi
 PROJECT="${PROJECT:=$DEFAULT_PROJECT}"
 SSH_KEY_PATH="${SSH_KEY_PATH:=$DEFAULT_SSH_KEY_PATH}"
 VM_PREFIX_NAME="${PROJECT}-instance-sasewan"
-VM_NAME="${VM_PREFIX_NAME}$STACK_ID"
-ADDRESS_NAME="${VM_PREFIX_NAME}-public-ip$STACK_ID"
+VM_NAME="${VM_PREFIX_NAME}-$STACK_ID"
+ADDRESS_NAME="${VM_PREFIX_NAME}-public-ip-$STACK_ID"
 ZONE="${ZONE:=$DEFAULT_ZONE}"
 REGION="${ZONE%-*}"
 WAN_NETWORK="default"
 MGMT_NETWORK_PREFIX_NAME="internal-management"
-MGMT_NETWORK="${MGMT_NETWORK_PREFIX_NAME}$STACK_ID"
-MGMT_SUBNET="${MGMT_NETWORK_PREFIX_NAME}-subnet$STACK_ID"
-FW_RULE_ALLOW_INTERNAL="${MGMT_NETWORK_PREFIX_NAME}-allow-internal$STACK_ID"
-FW_RULE_ALLOW_CUSTOM="${WAN_NETWORK}-allow-custom-ports$STACK_ID"
+MGMT_NETWORK="${MGMT_NETWORK_PREFIX_NAME}-$STACK_ID"
+MGMT_SUBNET="${MGMT_NETWORK_PREFIX_NAME}-subnet-$STACK_ID"
+FW_RULE_ALLOW_INTERNAL="${MGMT_NETWORK_PREFIX_NAME}-allow-internal-$STACK_ID"
+FW_RULE_ALLOW_CUSTOM="${WAN_NETWORK}-allow-custom-ports-$STACK_ID"
 
 if [ "x$STACK_ID" != "x" ] ; then
-    SSH_KEY_PATH="${SSH_KEY_PATH}/${STACK_ID:1}"
+    SSH_KEY_PATH="${SSH_KEY_PATH}/${STACK_ID}"
 fi
 
 

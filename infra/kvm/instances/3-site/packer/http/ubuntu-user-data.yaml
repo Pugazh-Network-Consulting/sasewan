@@ -1,0 +1,17 @@
+#cloud-config
+autoinstall:
+  version: 1
+  identity:
+    hostname: ${hostname}
+    username: ubuntu
+    password: $6$jjeB8Ktb1ZIooJ3G$pGYCril8Ot5w2d5A/ADT0img8zCFOrQR77gcI3OjXm45Q0KARu0LzqNuK./e66n5cRGBXKU.uWowaB.pkDSsd/
+  ssh:
+    allow-pw: true
+    install-server: true
+    
+runcmd:
+  - sudo chown ubuntu:ubuntu /etc/sysctl.conf
+  - sudo echo net.ipv6.conf.all.disable_ipv6=1 >> /etc/sysctl.conf
+  - sudo echo net.ipv6.conf.default.disable_ipv6=1 >> /etc/sysctl.conf
+  - sudo echo net.ipv4.ip_forward=1 >> /etc/sysctl.conf
+  - sudo sysctl -p
