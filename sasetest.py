@@ -19,7 +19,7 @@ class saseTest(object):
     """
 
     def __init__(self):
-        """ Initializer for Cli class """
+        """ Initializer for CLI class """
 
         self.help = "Various Commands to run SaseTest Suites"
         parser = argparse.ArgumentParser(description="Welcome to SaseTest CLI tool")
