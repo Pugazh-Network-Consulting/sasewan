@@ -22,7 +22,7 @@ function usage {
     echo "       <stack_id> A suffix used to append in all resources created in GCP."
     echo "                  If provided, it must be an alphanumeric string."
     echo "       <ssh_key_path> An absolute path where to remove the SSH key to access to the environment in GCP."
-    echo "                      If not provided, the SSH key will be removed in the working directory."
+    echo "                      If not provided, the SSH Key path $DEFAULT_SSH_KEY_PATH will be used and subfolder is removed"
     echo "                      If <stack_id> is provided, a subfolder called <stack_id> will be removed."
     echo "       <zone> The zone where the GCP environment was created."
     echo "              If not specified, the zone $DEFAULT_ZONE will be used."
