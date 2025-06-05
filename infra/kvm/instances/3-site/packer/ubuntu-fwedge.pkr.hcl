@@ -8,12 +8,15 @@ variable "ssh_key_file" {
 
 variable "ubuntu_cloud_image" {
   type = string
-  default = "https://sandbox.flexiwan.com/Utils/focal.6.3.2-testing.console.bios.qcow2"
+  #default = "https://sandbox.flexiwan.com/Utils/focal.6.3.2-testing.console.bios.qcow2"
+  default = "https://cloud-images.ubuntu.com/focal/20250403/focal-server-cloudimg-amd64.img"
 }
 
 variable "ubuntu_image_checksum" {
   type = string
-  default = "b358f7d6c092e700fbfe0a43401f8cb5395a526807fd85373e661a4b2a9f8fa5"
+  default = "dbc3565f827265db24b9bee2d5ab74ccbc7b1fdc57d5bb266f032e7ce531a70c"
+  #default = "b358f7d6c092e700fbfe0a43401f8cb5395a526807fd85373e661a4b2a9f8fa5"
+
 }
 
 variable "server_ip" {
@@ -26,10 +29,12 @@ variable "mgmt_network" {
 
 variable "edge_version" {
   type = string
+  default = "latest"
 }
 
 variable "repo" {
   type = string 
+  default = "setup"
 }
 
 packer {
@@ -66,12 +71,12 @@ packer {
         ethernets = {
           eth = {
             match = {
-              name = "eth0"
+              name = "ens*"
             }
             addresses = [ join("/", [cidrhost("${var.mgmt_network}", 101), "24"]) ]
             gateway4 = split("/", "${var.mgmt_network}")[0]
             nameservers = {
-              search = [ "ubuntu" ]
+              search = [ "google.internal" ]
               addresses = [ "8.8.8.8" ]
             }
           }
@@ -133,13 +138,16 @@ packer {
     provisioner "shell" {
       inline = [
         "echo The domain has started and became accessible",
-        "sudo apt-get purge -y flexiwan-router",
+        "ip route show",
+        #"sudo apt-get purge -y flexiwan-router",
         "sudo apt update",
         "sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' dist-upgrade",
         "sudo echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections",
         "sudo apt-get install -y -qq net-tools curl wget traceroute",
         "curl -sL https://deb.flexiwan.com/${var.repo} | sudo bash -",
-        "sudo apt-get install -y ${var.edge_version}",
+        "sudo apt-get install -y flexiwan-router",
+        "sudo sed -i -e 's/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"/g' /etc/default/grub",
+        "sudo update-grub",
         "sudo rm -fr /var/lib/cloud/*",
         "ip -br a",
       ]

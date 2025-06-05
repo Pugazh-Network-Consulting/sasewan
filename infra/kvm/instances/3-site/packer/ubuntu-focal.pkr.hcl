@@ -44,24 +44,16 @@ packer {
 
   locals {
      user_data_part = {
-     	autoinstall = {
-        version = 1
-        identity = {
-          username = [ "ubuntu" ]
-          password = [ "$6$jjeB8Ktb1ZIooJ3G$pGYCril8Ot5w2d5A/ADT0img8zCFOrQR77gcI3OjXm45Q0KARu0LzqNuK./e66n5cRGBXKU.uWowaB.pkDSsd/" ]
-        }
-        ssh = {
-          allow-pw = true
-          install-server = true
-        }
-        runcmd = [
-          ["sed" , "-i", "-e", "$aAllowUsers", "ubuntu", "/etc/ssh/sshd_config" ],
-          ["sed" , "-i", "-e", "/^PasswordAuthentication no/s/^.*$/PasswordAuthentication yes/", "/etc/ssh/sshd_config" ],
-          ["service", "ssh" , "restart" ],
-        ]
-      }
+      runcmd = [
+        ["sed" , "-i", "-e", "$aAllowUsers", "ubuntu", "/etc/ssh/sshd_config" ],
+        ["sed" , "-i", "-e", "/^PasswordAuthentication no/s/^.*$/PasswordAuthentication yes/", "/etc/ssh/sshd_config" ],
+        ["service", "ssh" , "restart" ],
+      ]
+      ssh_authorized_keys = [
+        data.sshkey.install.public_key
+      ]
     }
-  
+
     network_config_part = {
       version = 2
         ethernets = {
@@ -72,7 +64,7 @@ packer {
             addresses = [ join("/", [cidrhost("${var.mgmt_network}", 101), "24"]) ]
             gateway4 = split("/", "${var.mgmt_network}")[0]
             nameservers = {
-              search = [ "ubuntu" ]
+              search = [ "google.internal" ]
               addresses = [ "8.8.8.8" ]
             }
           }
@@ -96,8 +88,8 @@ packer {
       ssh_host                  = "${var.server_ip}"
       ssh_port                  = "1011"
       ssh_username              = "ubuntu"
-      ssh_password              = "flexiwan"
-      #ssh_private_key_file      = data.sshkey.install.private_key_path
+      #ssh_password              = "flexiwan"
+      ssh_private_key_file      = data.sshkey.install.private_key_path
       ssh_file_transfer_method  = "scp"
     }
     network_address_source = "agent"
@@ -134,6 +126,11 @@ packer {
     provisioner "shell" {
       inline = [
         "echo The domain has started and became accessible",
+        "sudo ip addr show",
+        #"sudo ip -br a",
+        #"sudo ip route show",
+        #"sudo cat /etc/resolv.conf",
+        #"sudo dig @127.0.0.53 www.google.com",
         "sudo apt update",
         "sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' dist-upgrade",
         "sudo echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections",
@@ -141,7 +138,7 @@ packer {
         "sudo sed -i -e 's/GRUB_CMDLINE_LINUX=\"\"/GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"/g' /etc/default/grub",
         "sudo update-grub",
         "sudo rm -fr /var/lib/cloud/*",
-        "ip -br a",
+        #"ip -br a",
       ]
     }
     post-processor "manifest" {
