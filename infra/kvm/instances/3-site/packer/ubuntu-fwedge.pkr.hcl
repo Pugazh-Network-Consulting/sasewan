@@ -9,12 +9,12 @@ variable "ssh_key_file" {
 variable "ubuntu_cloud_image" {
   type = string
   #default = "https://sandbox.flexiwan.com/Utils/focal.6.3.2-testing.console.bios.qcow2"
-  default = "https://cloud-images.ubuntu.com/focal/20250403/focal-server-cloudimg-amd64.img"
+  default = "https://cloud-images.ubuntu.com/focal/20250605/focal-server-cloudimg-amd64.img"
 }
 
 variable "ubuntu_image_checksum" {
   type = string
-  default = "dbc3565f827265db24b9bee2d5ab74ccbc7b1fdc57d5bb266f032e7ce531a70c"
+  default = "b55942306988d925e839ab55bdb2e06ff450a900dfd4060ae801c012e2f39b77"
   #default = "b358f7d6c092e700fbfe0a43401f8cb5395a526807fd85373e661a4b2a9f8fa5"
 
 }
