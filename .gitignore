@@ -1,1 +1,38 @@
 .vscode/settings.json
+infra/kvm/instances/3-site/.terraform.lock.hcl
+infra/kvm/instances/3-site/edge-image
+infra/kvm/instances/3-site/focal-image
+infra/kvm/instances/3-site/terraform.tfvars
+infra/kvm/instances/3-site/.terraform*
+# Ignore Terraform state files
+*.tfstate
+*.tfstate.*
+# Ignore Terraform plan files
+*.tfplan
+# Ignore Terraform variables files
+*.tfvars
+# Ignore Terraform workspace files
+*.tfworkspace
+# Ignore Terraform lock files
+*.terraform.lock.hcl
+# Ignore Terraform module cache
+.terraform/
+# Ignore local configuration files
+*.tfvars.json
+# Ignore local environment files
+.env
+# Ignore local configuration files
+*.local
+# Ignore local state files
+*.local.tfstate
+# Ignore local plan files
+*.local.tfplan
+# Ignore local workspace files
+*.local.tfworkspace
+# Ignore Python cache files
+*.pyc
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints
+infra/kvm/instances/3-site/packer/ubuntu-focal-manifest.json
+.gitignore
+infra/kvm/instances/3-site/packer/ubuntu-fwedge-manifest.json

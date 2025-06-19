@@ -126,9 +126,9 @@ resource "libvirt_domain" "core1" {
     network_id = "${libvirt_network.edge_wan1_network[1].id}"
   }
 
-  # network_interface {
-  #   network_id = "${libvirt_network.edge_wan1_network[2].id}"
-  # }
+  network_interface {
+    network_id = "${libvirt_network.edge_wan1_network[2].id}"
+  }
 
   disk {
     volume_id = "${libvirt_volume.core1.id}"
@@ -178,9 +178,9 @@ resource "libvirt_domain" "core2" {
     network_id = "${libvirt_network.edge_wan2_network[1].id}"
   }
 
-  # network_interface {
-  #   network_id = "${libvirt_network.edge_wan2_network[2].id}"
-  # }
+  network_interface {
+    network_id = "${libvirt_network.edge_wan2_network[2].id}"
+  }
 
   disk {
     volume_id = "${libvirt_volume.core2.id}"
@@ -293,9 +293,9 @@ resource "libvirt_domain" "edge" {
   count  = var.edge_instance_count
   name   = "b${count.index + 1}-edge1"
   memory = "4096"
-  cpu {
-    mode = "host-passthrough"
-  }
+  # cpu {
+  #   mode = "host-passthrough"
+  # }
   vcpu   = 4
 
   cloudinit = "${libvirt_cloudinit_disk.edge_seed["${count.index}"].id}"

@@ -78,7 +78,7 @@ MIN_CPU_PLATFORM="Intel Cascade Lake"
 QUOTA_CPUS_METRIC="N2_CPUS"
 #MACHINE_TYPE="n2-standard-8"
 MACHINE_TYPE="${MACHINE_TYPE:=$DEFAULT_MACHINE_TYPE}"
-IMAGE_FAMILY="ubuntu-2004-lts"
+IMAGE_FAMILY="ubuntu-2204-lts"
 IMAGE_PROJECT="ubuntu-os-cloud"
 DISK_SIZE="60GB"
 WAN_NETWORK="default"
@@ -91,7 +91,7 @@ MGMT_NETMASK="${MGMT_RANGE##*/}"
 FW_RULE_ALLOW_INTERNAL="${MGMT_NETWORK_PREFIX_NAME}-allow-internal-$STACK_ID"
 FW_RULE_ALLOW_CUSTOM="${WAN_NETWORK}-allow-custom-ports-$STACK_ID"
 #FW_RULE_ALLOW_CUSTOM_RULE="tcp:22,tcp:1001-1002,tcp:1011-1013,tcp:1021-1023,tcp:1031,tcp:1041,tcp:1051,tcp:5901,tcp:10000-10100,tcp:18021-18023,tcp:18041,icmp"
-FW_RULE_ALLOW_CUSTOM_RULE="tcp:22,tcp:5901,tcp:1011,tcp:10000-10100,tcp:18021-18023,tcp:18041,icmp"
+FW_RULE_ALLOW_CUSTOM_RULE="tcp:22,tcp:80,tcp:5901,tcp:1011,tcp:10000-10100,tcp:18021-18023,tcp:18041,icmp"
 STARTUP_SCRIPT_PATH="$DEFAULT_STARTUP_SCRIPT_PATH"
 STARTUP_SCRIPT_FILENAME="$DEFAULT_STARTUP_SCRIPT_FILENAME"
 
@@ -179,12 +179,15 @@ fi
 echo "The GCP environment will be created inside the project $PROJECT"
 
 # Get the newest GCP official image for Ubuntu 20.04 LTS
-#image="$(gcloud compute images list --project=$PROJECT \
-#    --filter="family~ 'ubuntu-2004-lts$'" \
-#    --format="value(NAME)" \
-#    --sort-by="~creationTimestamp" \
-#    --limit=1)"
-#echo "Image Project: $image"
+image="$(gcloud compute images list --project=$PROJECT \
+   --filter="family~ 'ubuntu-2004-lts$'" \
+   --format="value(NAME)" \
+   --sort-by="~creationTimestamp" \
+   --limit=1)"
+
+
+
+echo "Image Project: $image"
 
 # Create network for internal management purposes inside the VM instance
 echo "Creating network called $MGMT_NETWORK for internal management purposes inside the VM instance ..."
@@ -224,7 +227,7 @@ fi
 
 ssh_privkey_file="${SSH_KEY_PATH}/${PROJECT}_ssh_key"
 ssh_pubkey_file="${ssh_privkey_file}.pub"
-ssh-keygen -t rsa -f $ssh_privkey_file -q -N "" <<<y
+ssh-keygen -t ed25519 -f $ssh_privkey_file -q -N "" <<<y
 chmod 600 $ssh_privkey_file
 public_key="${VM_USERNAME}:$(cut -d ' ' -f1,2 $ssh_pubkey_file)"
 echo "Public key (username:pubkey format):"
