@@ -41,6 +41,7 @@ apt -y install bridge-utils \
     qemu-system-gui \
     qemu-system-x86 \
     qemu-utils \
+    nginx \
     linux-modules-extra-$(uname -r)
 
 # Configure user permissions to libvirt/kvm

@@ -19,4 +19,8 @@ ethernets:
         dhcp4: false
         dhcp6: false
         addresses: [ "${edge2_wan2_ip}/${netmask}" ]
- 
+    eth4:
+        dhcp4: false
+        dhcp6: false
+        addresses: [ "${edge3_wan2_ip}/${netmask}" ]        
+

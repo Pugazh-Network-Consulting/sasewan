@@ -95,7 +95,7 @@ class Logger():
         """ Cleans up the logger at the end of each test case/method. """
         LogStream.unregister(logger=self.log, _id=self.__log_stream_id)
 
-    def setup_sys_out(self, log_name='flexitest', log_level='CRITICAL'):
+    def setup_sys_out(self, log_name='sasetest', log_level='CRITICAL'):
         """ Setup default handler as sys out.
 
         Args:

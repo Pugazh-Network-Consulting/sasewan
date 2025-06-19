@@ -14,10 +14,12 @@ variable "server_ip" {
 
 variable "ubuntu_base_path" {
   type = string
+  default = "https://mega.nz/file/m9oUwIAI#SQVBXVY8geqy5_hpghX3fkTDNbMse_-uo2JTxe0_S-s"
 }
 
 variable "ubuntu_fwedge_path" {
   type = string
+  default = "https://mega.nz/file/L9AmSAxY#dtBXmiqnSXTKgLBYbBL4AieH-35Wp9P9zKVkMk9wjPs"
 }
 
 variable "ssh_key_file" {
@@ -26,7 +28,7 @@ variable "ssh_key_file" {
 
 variable "client_instance_count" {
   type = number
-  default = 2
+  default = 3
 }
 
 variable "mgmt_network" {
@@ -35,7 +37,7 @@ variable "mgmt_network" {
 
 variable "edge_instance_count" {
   type = number
-  default = 2
+  default = 3
 }
 
 variable "repo" {
