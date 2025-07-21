@@ -10,7 +10,7 @@ from logger import LOGGER
 #KVM_CLOUD_IMAGE = "https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img"
 #KVM_CLOUD_IMAGE = "https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img"
 EDGE_IMAGER = "https://imager.flexiwan.com"
-TIMEOUT = 3600
+TIMEOUT = 7200
 base_image = ""
 SUPPORTED_TOPOS = ["1-site", "3-site"]
 REPOSITORIES = ["setup", "setup-testing", "setup-unstable"]
@@ -273,7 +273,7 @@ def create_image(args, packer_file, image_type='client'):
         management_network = args.management_ip
         username = args.username
         ssh_key_file = args.ssh_key
-        base_image_path = os.path.join(TESTBED_CONFIG_PATH, args.topo)
+        #base_image_path = os.path.join(TESTBED_CONFIG_PATH, args.topo)
         version = ''
         repo = args.repo
         packer_path = os.path.join(TESTBED_CONFIG_PATH, args.topo, "packer")
@@ -301,7 +301,6 @@ def create_image(args, packer_file, image_type='client'):
             pkr_validate=f"sudo packer validate -var username={username} -var ssh_key_file={ssh_key_file} -var server_ip={server_ip} -var mgmt_network={management_network} -var edge_version={version} -var repo=setup-{repo} {packer_file}"
             _exec_shell_command(pkr_validate, packer_path)
             pkr_build=f"sudo packer build -var username={username} -var ssh_key_file={ssh_key_file} -var server_ip={server_ip} -var mgmt_network={management_network} -var edge_version={version} -var repo={repo} {packer_file}"
-            #pkr_build=f"sudo packer build -var username={username} -var ssh_key_file={ssh_key_file} -var server_ip={server_ip} -var mgmt_network={management_network} {packer_file}"
             _exec_shell_command(pkr_build, packer_path)
             jfile = open(os.path.join(packer_path, "ubuntu-fwedge-manifest.json"))
             artifact_path = json.load(jfile)['builds'][0]['artifact_id']
@@ -309,14 +308,10 @@ def create_image(args, packer_file, image_type='client'):
             LOGGER.log.info(f"Setting Packer user permission for edge artifact")
             _exec_remote_command(hostname=server_ip, username=username, ssh_key_file=ssh_key_file, command=f"sudo chown {username}:{username} {artifact_path}")
             _exec_remote_command(hostname=server_ip, username=username, ssh_key_file=ssh_key_file, command=f"sudo chmod 755 {artifact_path}")
-            LOGGER.log.info(f"SCPing the edge artifact from KVM host to local disk")
-            _exec_remote_command(hostname=server_ip, username=username, ssh_key_file=ssh_key_file, command=f"cp {artifact_path} /var/www/html/")
-            #_exec_shell_command(f"scp -i {ssh_key_file} -o StrictHostKeyChecking=no {username}@{server_ip}:{artifact_path} {base_image_path}")
-            #packer_image_path = os.path.join(base_image_path, artifact_path.split("/")[-1])
-            packer_image_path = "http://{server_ip}/{artifact_path.split('/')[-1]}"
-            LOGGER.log.info(f"Client Image is created successfully and its location is: {packer_image_path}")
-            #_exec_shell_command(f"scp -i {ssh_key_file} -o StrictHostKeyChecking=no {username}@{server_ip}:{artifact_path} {base_image_path}")
-            packer_image_path = os.path.join(base_image_path, artifact_path.split("/")[-1])
+            LOGGER.log.info(f"Copying the edge artifact from KVM host to nginx server path")
+            _exec_remote_command(hostname=server_ip, username=username, ssh_key_file=ssh_key_file, command=f"sudo cp {artifact_path} /var/www/html/")
+            packer_image_path = f"http://{server_ip}/{artifact_path.split('/')[-1]}"
+            LOGGER.log.info(f"Edge Image is created successfully and its location is: {packer_image_path}")
         else:
             _exec_shell_command(f"sudo packer init {packer_file}", packer_path)
             pkr_validate=f"sudo packer validate -var username={username} -var ssh_key_file={ssh_key_file} -var server_ip={server_ip} -var mgmt_network={management_network} {packer_file}"
@@ -329,15 +324,10 @@ def create_image(args, packer_file, image_type='client'):
             LOGGER.log.info(f"Setting Packer user permission for client ubuntu artifact")
             _exec_remote_command(hostname=server_ip, username=username, ssh_key_file=ssh_key_file, command=f"sudo chown {username}:{username} {artifact_path}")
             _exec_remote_command(hostname=server_ip, username=username, ssh_key_file=ssh_key_file, command=f"sudo chmod 755 {artifact_path}")
-            LOGGER.log.info(f"SCPing the artifact from KVM host to local disk")
-            _exec_remote_command(hostname=server_ip, username=username, ssh_key_file=ssh_key_file, command=f"cp {artifact_path} /var/www/html/")
-            #_exec_shell_command(f"scp -i {ssh_key_file} -o StrictHostKeyChecking=no {username}@{server_ip}:{artifact_path} {base_image_path}")
-            #packer_image_path = os.path.join(base_image_path, artifact_path.split("/")[-1])
-            #_exec_shell_command(f"cp {artifact_path} /var/www/html/")
-            packer_image_path = "http://{server_ip}/{artifact_path.split('/')[-1]}"
-            LOGGER.log.info(f"Edge Image is created successfully and its location is: {packer_image_path}")
-            #_exec_shell_command(f"scp -i {ssh_key_file} -o StrictHostKeyChecking=no {username}@{server_ip}:{artifact_path} {base_image_path}")
-            #packer_image_path = os.path.join(base_image_path, artifact_path.split("/")[-1])
+            LOGGER.log.info(f"Copying the client artifact from KVM host to nginx server path")
+            _exec_remote_command(hostname=server_ip, username=username, ssh_key_file=ssh_key_file, command=f"sudo cp {artifact_path} /var/www/html/")
+            packer_image_path = f"http://{server_ip}/{artifact_path.split('/')[-1]}"
+            LOGGER.log.info(f"Client Image is created successfully and its location is: {packer_image_path}")
 
         LOGGER.log.info("Revoking the Packer SSH access")
         cmd = f'sudo iptables -t nat -D PREROUTING -m comment --comment "packer-ssh" -i {default_int_name} -p tcp --dport 1011 -j DNAT --to-destination {packer_mgmt_ip}:22'
